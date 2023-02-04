@@ -22,13 +22,16 @@ const resolvers = {
     },
 
     lesson: async (parent, { lessonId }) => {
-      return Lesson.findOne(ObjectId(lessonId));
+      return Lesson.findOne(ObjectId(lessonId)).populate('rider');
     },
 
     lessons: async () => {
-      return Lesson.find({}).populate('rider')
+      return Lesson.find({})
+        .populate('rider')
+        .populate('instructor')
+        .populate('horse')
     },
-    
+
     instructors: async () => {
       return Instructor.find({});
     },
@@ -53,7 +56,8 @@ const resolvers = {
       console.log("finding rider")
       const foundUser = await Rider.findOne({ _id: riderId })
       console.log(foundUser)
-      if (foundUser) throw new Error('Email is already in use')
+      // what is this lines purpose?
+      // if (foundUser) throw new Error('Email is already in use')
 
       return foundUser;
     },
@@ -84,17 +88,17 @@ const resolvers = {
     },
 
 
-    bookLesson: async (parent, { lessonDate, startTime,  duration, timeSlot, rider, instructor, horse }) => {
+    bookLesson: async (parent, { lessonDate, startTime, duration, timeSlot, rider, instructor, horse }) => {
       const lesson = await Lesson.create({
         lessonDate, startTime, duration,
         timeSlot, rider, instructor, horse
       });
-      lesson.rider = await Rider.findOne({_id: rider._id });
-      lesson.instructor = await Instructor.findOne({_id: instructor._id});
-      lesson.horse = await Horse.findOne({_id: horse._id});
-            
-      console.log (lesson.horse)
-    //  console.log(lesson)
+      lesson.rider = await Rider.findOne({ _id: rider._id });
+      lesson.instructor = await Instructor.findOne({ _id: instructor._id });
+      lesson.horse = await Horse.findOne({ _id: horse._id });
+
+      console.log(lesson.horse)
+      //  console.log(lesson)
       return lesson;
     },
 
