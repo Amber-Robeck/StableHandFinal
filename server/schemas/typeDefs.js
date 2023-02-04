@@ -75,13 +75,13 @@ const typeDefs = gql`
         lesson(lessonId: ID!,  rider: RiderData): Lesson        
 
         instructors: [Instructor]
-        instructor(id: ID!): Instructor
+        instructor(instructorId: ID!): Instructor
 
         horses: [Horse]
-        horse(id: ID!): Horse
+        horse(horseId: ID!): Horse
 
         riders: [Rider]
-        rider(id: ID!): Rider
+        rider(riderId: ID!): Rider
         
     }
  
