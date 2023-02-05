@@ -20,7 +20,10 @@ function LessonForm(props) {
     const timeSlot = props.timeSlot + bookedDate.replace(/\//g, "");
 
     const startTime = props.lessonHour;
+    let correctedTime = props?.riderLesson?.startTime.replace(/(.{2})$/, ':$1')
 
+    // .replace(/[^\d:]/g, '')
+    console.log("time", correctedTime)
     let duration = 1;
     const { data: rdata } = useQuery(QUERY_RIDERS);
     const { data: idata } = useQuery(QUERY_INSTRUCTORS)
@@ -32,9 +35,10 @@ function LessonForm(props) {
 
     const { data } = useQuery(QUERY_LESSONS);
     const lessons = data?.lessons || [];
-    // console.log(lessons)
+    console.log("lessons", lessons)
     console.log('riderlesson', props.riderLesson)
-    console.log(bookedDate)
+    console.log("bookeddate", bookedDate)
+
     const ts = props.timeSlot + bookedDate.replace(/\//g, ""); // "Su0900 + 12052021"
     // console.log(ts)
     //const lessonBooked = lessons.find(lesson => lesson.timeSlot === ts);
@@ -116,7 +120,7 @@ function LessonForm(props) {
                         <input
                             text={bookedDate}
                             // text={props.riderLesson.rider.lessonDate}
-                            //value={bookedDate}
+                            value={bookedDate}
                             name="bookedDate"
                             onChange={handleInputChange}
                             type="text"
@@ -126,7 +130,7 @@ function LessonForm(props) {
                     <div>
                         <label> Time:</label>&nbsp;
                         <input
-                            value={props.riderLesson?.startTime || {}}
+                            value={correctedTime || {}}
                             name="startTime"
                             onChange={handleInputChange}
                             type="text"
