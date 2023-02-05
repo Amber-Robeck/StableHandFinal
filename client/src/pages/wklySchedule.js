@@ -1,7 +1,7 @@
 import React from "react";
 import '../styles/timesheet.css'
 import LessonForm from "../components/lessonForm";
-import TestLessonForm from "../components/testLessonForm";
+// import TestLessonForm from "../components/testLessonForm";
 import { useQuery } from '@apollo/client';
 import findDateOfLesson from "../utils/findDateOfLesson";
 import { QUERY_LESSONS } from "../utils/queries";
@@ -22,10 +22,8 @@ function WklySchedule() {
     const [anchorPopup, setShow] = useState(false)
     const [message, setMessage] = useState('')
     const [riderLesson, setTimeForLesson] = useState(null);
-
     const { data } = useQuery(QUERY_LESSONS);
     const lessons = data?.lessons || [];
-
     let availability = null;
 
     const scheduleAlesson = (event) => {
@@ -42,6 +40,7 @@ function WklySchedule() {
             setHour(hour)
             setMessage(convertDay(day) + " " + convertHour(hour));
             setShow(true);
+            // setTimeForLesson(lessonBooked);
         } else {
             //  We are editing a lesson with the 'ts' variable
             const weekOfDate = weekOf.format("MM/DD/YYYY"); // 11/30/2021
@@ -52,9 +51,9 @@ function WklySchedule() {
             const lessonBooked = lessons.find(lesson => lesson.timeSlot === ts);
 
             if (lessonBooked) {
-                console.log(lessonBooked);
+                console.log('lessonbooked', lessonBooked);
                 setTimeForLesson(lessonBooked);
-                console.log(lessonBooked)
+                // console.log(lessonBooked)
             }
 
             setShow(true);
@@ -72,7 +71,6 @@ function WklySchedule() {
         availability = "Available";
         if (lessonBooked)
             availability = lessonBooked.rider.firstName + " " + lessonBooked.rider.lastName;
-
 
         return availability;
     }
@@ -105,14 +103,17 @@ function WklySchedule() {
             <LessonForm
                 trigger={anchorPopup}
                 timeSlot={timeSlot}
+                setTimeSlot={setTimeSlot}
                 setTrigger={setShow}
                 message={message}
                 weekOf={weekOf}
                 lessonDay={lessonDay}
                 lessonHour={lessonHour}
                 riderLesson={riderLesson}
+                setTimeForLesson={setTimeForLesson}
+            // scheduleAlesson={scheduleAlesson}
             ></LessonForm>
-            <TestLessonForm
+            {/* <TestLessonForm
                 trigger={anchorPopup}
                 timeSlot={timeSlot}
                 setTrigger={setShow}
@@ -121,7 +122,7 @@ function WklySchedule() {
                 lessonDay={lessonDay}
                 lessonHour={lessonHour}
                 riderLesson={riderLesson}
-            ></TestLessonForm>
+            ></TestLessonForm> */}
             <table>
                 <thead>
                     <tr>

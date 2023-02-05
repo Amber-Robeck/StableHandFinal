@@ -13,6 +13,8 @@ var idInstructor = null;
 var idHorse = null;
 
 function LessonForm(props) {
+    // console.log(props.lessons)
+    // console.log(props.setTimeForLesson)
     const weekOfDate = props.weekOf.format("MM/DD/YYYY");
     const lessonDay = props.lessonDay;
     const bookedDate = findDateOfLesson(lessonDay, weekOfDate).toString();
@@ -22,7 +24,6 @@ function LessonForm(props) {
     const startTime = props.lessonHour;
     let correctedTime = props?.riderLesson?.startTime.replace(/(.{2})$/, ':$1')
 
-    // .replace(/[^\d:]/g, '')
     console.log("time", correctedTime)
     let duration = 1;
     const { data: rdata } = useQuery(QUERY_RIDERS);
@@ -33,13 +34,13 @@ function LessonForm(props) {
     const instructors = idata?.instructors || [];
     const horses = hdata?.horses || [];
 
-    const { data } = useQuery(QUERY_LESSONS);
-    const lessons = data?.lessons || [];
-    console.log("lessons", lessons)
-    console.log('riderlesson', props.riderLesson)
-    console.log("bookeddate", bookedDate)
+    // const { data } = useQuery(QUERY_LESSONS);
+    // const lessons = data?.lessons || [];
+    // console.log("lessons", lessons)
+    // console.log('riderlesson', props.riderLesson)
+    // console.log("bookeddate", bookedDate)
 
-    const ts = props.timeSlot + bookedDate.replace(/\//g, ""); // "Su0900 + 12052021"
+    // const ts = props.timeSlot + bookedDate.replace(/\//g, ""); // "Su0900 + 12052021"
     // console.log(ts)
     //const lessonBooked = lessons.find(lesson => lesson.timeSlot === ts);
     //console.log(lessonBooked + " IN LESSON FORM")
@@ -71,11 +72,11 @@ function LessonForm(props) {
     };
 
     const handleFormSubmit = async () => {
-
         const objRider = riders.find(rider => rider._id === idRider);
+        // console.log(objRider)
         //setRider(riders.find(rider => rider._id === idRider));
-
         const objInstructor = instructors.find(instructor => instructor._id === idInstructor);
+        // console.log(objInstructor)
         const objHorse = horses.find(horse => horse._id === idHorse);
         // console.log(objHorse)
         try {
@@ -96,16 +97,26 @@ function LessonForm(props) {
                     horse: { _id: objHorse._id, name: objHorse.name }
 
                 },
-            });
-
-            //props.riderLesson.rider.firstName = data.rider.firstName
-            //props.riderLesson.rider.lastName = data.rider.lastName
-            console.log('riderlesson', props.riderLesson)
-            document.getElementById(props.timeSlot).text = "Testing..." + objRider.firstName + " " + objRider.lastName;
+            }
+            );
+            window.location.reload()
+            // console.log("name", data.bookLesson.rider.firstName)
+            return data
+            // return data && (console.log('data', data))
+            // if (!loading) {
+            //     console.log("data", data)
+            // }
+            // props.riderLesson.rider.firstName = data.bookLesson.rider.firstName
+            // props.riderLesson.rider.lastName = data.bookLesson.rider.lastName
+            // props.setTimeForLesson('testing')
+            // console.log('riderlesson', props.riderLesson)
+            // props.setTimeSlot(objRider.firstName + " " + objRider.lastName)
+            // document.getElementById(props.timeSlot).text = "Testing..." + objRider.firstName + " " + objRider.lastName;
         } catch (err) {
             console.error(err);
         }
         props.setTrigger(false)
+        // props.setTimeSlot(props.timeSlot + objRider)
     }
     return (props.trigger) ? ((props.riderLesson) ? (
         <div className="popup">
@@ -114,7 +125,7 @@ function LessonForm(props) {
                 <span className="close-btn" onClick={() => props.setTrigger(false)}>
                     Close</span>
                 {props.children}
-                <form className="lessonForm">
+                <form className="lessonForm" onSubmit={handleFormSubmit}>
                     <div>
                         <label> Date:</label>&nbsp;
                         <input
@@ -171,7 +182,8 @@ function LessonForm(props) {
                         </select>
                     </div>
                     <button type="button" id="bookTime"
-                        onClick={() => handleFormSubmit()}>
+                        onClick={handleFormSubmit}
+                    >
                         Submit
                     </button>
                 </form>
