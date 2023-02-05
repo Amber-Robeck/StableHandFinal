@@ -3,7 +3,7 @@ import "../styles/lesson.css"
 import findDateOfLesson from "../utils/findDateOfLesson";
 import { useMutation } from '@apollo/client';
 import { useQuery } from '@apollo/client';
-import { QUERY_HORSES, QUERY_RIDERS, QUERY_INSTRUCTORS, QUERY_LESSONS} from "../utils/queries";
+import { QUERY_HORSES, QUERY_RIDERS, QUERY_INSTRUCTORS, QUERY_LESSONS } from "../utils/queries";
 import { BOOK_LESSON } from "../utils/mutations";
 import convertHour from "../utils/convertHour";
 
@@ -16,9 +16,9 @@ function LessonForm(props) {
     const weekOfDate = props.weekOf.format("MM/DD/YYYY");
     const lessonDay = props.lessonDay;
     const bookedDate = findDateOfLesson(lessonDay, weekOfDate).toString();
-    
+
     const timeSlot = props.timeSlot + bookedDate.replace(/\//g, "");
- 
+
     const startTime = props.lessonHour;
 
     let duration = 1;
@@ -32,9 +32,11 @@ function LessonForm(props) {
 
     const { data } = useQuery(QUERY_LESSONS);
     const lessons = data?.lessons || [];
-    console.log(lessons)
+    // console.log(lessons)
+    console.log('riderlesson', props.riderLesson)
+    console.log(bookedDate)
     const ts = props.timeSlot + bookedDate.replace(/\//g, ""); // "Su0900 + 12052021"
-    console.log(ts)
+    // console.log(ts)
     //const lessonBooked = lessons.find(lesson => lesson.timeSlot === ts);
     //console.log(lessonBooked + " IN LESSON FORM")
     const [bookLesson] = useMutation(BOOK_LESSON);
@@ -47,7 +49,7 @@ function LessonForm(props) {
 
     const handleInputChange = (e) => {
         console.log("Contents of lesson")
-        console.log (props.riderLesson)
+        console.log(props.riderLesson)
         // Getting the value and name of the input which triggered the change
         //const { name, value } = e.target;
     };
@@ -66,12 +68,12 @@ function LessonForm(props) {
 
     const handleFormSubmit = async () => {
 
-        const objRider = riders.find(rider => rider._id === idRider);        
+        const objRider = riders.find(rider => rider._id === idRider);
         //setRider(riders.find(rider => rider._id === idRider));
 
         const objInstructor = instructors.find(instructor => instructor._id === idInstructor);
         const objHorse = horses.find(horse => horse._id === idHorse);
-        console.log(objHorse)
+        // console.log(objHorse)
         try {
             const { data } = await bookLesson({
                 variables: {
@@ -80,8 +82,8 @@ function LessonForm(props) {
                     duration: duration,
                     timeSlot: timeSlot,
                     rider: {
-                        _id: objRider._id,               
-                  },
+                        _id: objRider._id,
+                    },
                     instructor: {
                         _id: objInstructor._id,
                         firstName: objInstructor.firstName,
@@ -94,7 +96,7 @@ function LessonForm(props) {
 
             //props.riderLesson.rider.firstName = data.rider.firstName
             //props.riderLesson.rider.lastName = data.rider.lastName
-            console.log(props.riderLesson)
+            console.log('riderlesson', props.riderLesson)
             document.getElementById(props.timeSlot).text = "Testing..." + objRider.firstName + " " + objRider.lastName;
         } catch (err) {
             console.error(err);
@@ -112,7 +114,7 @@ function LessonForm(props) {
                     <div>
                         <label> Date:</label>&nbsp;
                         <input
-                            text = {bookedDate}
+                            text={bookedDate}
                             // text={props.riderLesson.rider.lessonDate}
                             //value={bookedDate}
                             name="bookedDate"
@@ -124,7 +126,7 @@ function LessonForm(props) {
                     <div>
                         <label> Time:</label>&nbsp;
                         <input
-                            value={props.riderLesson.rider.startTime}
+                            value={props.riderLesson?.startTime || {}}
                             name="startTime"
                             onChange={handleInputChange}
                             type="text"
@@ -132,9 +134,9 @@ function LessonForm(props) {
                         />
                     </div>
                     <div>
-                    <label>Rider: </label>&nbsp;
+                        <label>Rider: </label>&nbsp;
                         <select onChange={handleRiderChange}>
-                        <option defaultValue>{props.riderLesson.rider.firstName + " " + props.riderLesson.rider.lastName}</option>
+                            <option defaultValue>{props.riderLesson.rider.firstName + " " + props.riderLesson.rider.lastName}</option>
                             {riders && riders.map((rider) =>
                                 (<option value={rider._id} key={rider._id}>{rider.firstName + " " + rider.lastName}</option>))}
                         </select>
@@ -153,7 +155,7 @@ function LessonForm(props) {
                         </select></div><div>
                         <label>Horse: </label>&nbsp;
                         <select onChange={handleHorseChange}>
-                        <option defaultValue>{props.riderLesson.horse.name}</option>
+                            <option defaultValue>{props.riderLesson.horse.name}</option>
                             {horses && horses.map((horse) =>
                                 (<option value={horse._id} key={horse._id}>{horse.name}</option>))}
                         </select>

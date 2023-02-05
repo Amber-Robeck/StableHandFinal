@@ -72,7 +72,7 @@ const typeDefs = gql`
         me: User
                 
         lessons: [Lesson]   
-        lesson(lessonId: ID!,  rider: RiderData): Lesson        
+        lesson(lessonId: ID!): Lesson        
 
         instructors: [Instructor]
         instructor(instructorId: ID!): Instructor

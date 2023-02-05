@@ -1,6 +1,7 @@
 import React from "react";
 import '../styles/timesheet.css'
 import LessonForm from "../components/lessonForm";
+import TestLessonForm from "../components/testLessonForm";
 import { useQuery } from '@apollo/client';
 import findDateOfLesson from "../utils/findDateOfLesson";
 import { QUERY_LESSONS } from "../utils/queries";
@@ -21,7 +22,7 @@ function WklySchedule() {
     const [anchorPopup, setShow] = useState(false)
     const [message, setMessage] = useState('')
     const [riderLesson, setTimeForLesson] = useState(null);
-    
+
     const { data } = useQuery(QUERY_LESSONS);
     const lessons = data?.lessons || [];
 
@@ -30,7 +31,7 @@ function WklySchedule() {
     const scheduleAlesson = (event) => {
         //alert('you are here!!!!!!!!!!!!!!')
         event.preventDefault();
-        var tmp = event.target.id;   
+        var tmp = event.target.id;
         var day = tmp.substr(0, 2);
         var hour = tmp.substr(2);
 
@@ -50,7 +51,7 @@ function WklySchedule() {
 
             const lessonBooked = lessons.find(lesson => lesson.timeSlot === ts);
 
-            if (lessonBooked){
+            if (lessonBooked) {
                 console.log(lessonBooked);
                 setTimeForLesson(lessonBooked);
                 console.log(lessonBooked)
@@ -111,6 +112,16 @@ function WklySchedule() {
                 lessonHour={lessonHour}
                 riderLesson={riderLesson}
             ></LessonForm>
+            <TestLessonForm
+                trigger={anchorPopup}
+                timeSlot={timeSlot}
+                setTrigger={setShow}
+                message={message}
+                weekOf={weekOf}
+                lessonDay={lessonDay}
+                lessonHour={lessonHour}
+                riderLesson={riderLesson}
+            ></TestLessonForm>
             <table>
                 <thead>
                     <tr>
