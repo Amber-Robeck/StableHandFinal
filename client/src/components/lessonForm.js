@@ -181,11 +181,14 @@ function LessonForm(props) {
                             <option value="30">30 minutes</option>
                         </select>
                     </div>
-                    <button type="button" id="bookTime"
-                        onClick={handleFormSubmit}
-                    >
-                        Submit
-                    </button>
+                    {props.riderLesson ? "" :
+                        <button
+                            type="button"
+                            id="bookTime"
+                            onClick={handleFormSubmit}
+                        >
+                            Submit
+                        </button>}
                 </form>
 
             </div>
