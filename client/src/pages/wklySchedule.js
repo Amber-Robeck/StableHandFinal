@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import '../styles/timesheet.css'
 import LessonForm from "../components/lessonForm";
-// import TestLessonForm from "../components/testLessonForm";
 import { useQuery } from '@apollo/client';
 import findDateOfLesson from "../utils/findDateOfLesson";
 import { QUERY_LESSONS } from "../utils/queries";
