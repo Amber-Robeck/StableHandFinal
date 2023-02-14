@@ -52,7 +52,7 @@ const resolvers = {
       return await Rider.find({})
     },
 
-    rider: async (parent, { riderId }) => {
+    qRider: async (parent, { riderId }) => {
       console.log("finding rider")
       const foundUser = await Rider.findOne({ _id: riderId })
       console.log(foundUser)

@@ -13,7 +13,7 @@ export const QUERY_RIDERS = gql`
 
 export const QUERY_A_RIDER = gql`
   query getARider($riderId: ID!) {
-    rider(riderId: $riderId) {
+    qRider(riderId: $riderId) {
         _id
         firstName
         lastName

@@ -81,7 +81,7 @@ const typeDefs = gql`
         horse(horseId: ID!): Horse
 
         riders: [Rider]
-        rider(riderId: ID!): Rider
+        qRider(riderId: ID!): Rider
         
     }
  
