@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "../styles/lesson.css"
 import findDateOfLesson from "../utils/findDateOfLesson";
 import { useMutation } from '@apollo/client';
@@ -7,25 +7,25 @@ import { QUERY_HORSES, QUERY_RIDERS, QUERY_INSTRUCTORS, QUERY_LESSONS } from "..
 import { BOOK_LESSON } from "../utils/mutations";
 import convertHour from "../utils/convertHour";
 
-//const moment = require('moment');
-var idRider = null;
-var idInstructor = null;
-var idHorse = null;
 
 function LessonForm(props) {
-    // console.log(props.lessons)
-    // console.log(props.setTimeForLesson)
-    const weekOfDate = props.weekOf.format("MM/DD/YYYY");
-    const lessonDay = props.lessonDay;
+    const [formData, setFormData] = useState({
+        lessonDate: "",
+        startTime: "",
+        duration: 1,
+        timeSlot: "",
+        rider: {},
+        instructor: {},
+        horse: {}
+    });
+    const { lessonDay, timeSlot, weekOf, lessonHour: startTime } = props;
+    const weekOfDate = weekOf.format("MM/DD/YYYY");
     const bookedDate = findDateOfLesson(lessonDay, weekOfDate).toString();
-    // const { lesson } = props;
-    const timeSlot = props.timeSlot + bookedDate.replace(/\//g, "");
+    // const timeSlot = props.timeSlot + bookedDate.replace(/\//g, "");
 
-    const startTime = props.lessonHour;
-    let correctedTime = props?.riderLesson?.startTime.replace(/(.{2})$/, ':$1')
-
-    console.log("time", correctedTime)
     let duration = 1;
+
+    // Query the riders, instructors and horses then set them to a variable if data is there
     const { data: rdata } = useQuery(QUERY_RIDERS);
     const { data: idata } = useQuery(QUERY_INSTRUCTORS)
     const { data: hdata } = useQuery(QUERY_HORSES)
@@ -34,16 +34,8 @@ function LessonForm(props) {
     const instructors = idata?.instructors || [];
     const horses = hdata?.horses || [];
 
-    // const { data } = useQuery(QUERY_LESSONS);
-    // const lessons = data?.lessons || [];
-    // console.log("lessons", lessons)
-    // console.log('riderlesson', props.riderLesson)
-    // console.log("bookeddate", bookedDate)
 
-    // const ts = props.timeSlot + bookedDate.replace(/\//g, ""); // "Su0900 + 12052021"
-    // console.log(ts)
-    //const lessonBooked = lessons.find(lesson => lesson.timeSlot === ts);
-    //console.log(lessonBooked + " IN LESSON FORM")
+
     const [bookLesson] = useMutation(BOOK_LESSON, {
         update(cache, { data: { bookLesson } }) {
             try {
@@ -59,81 +51,51 @@ function LessonForm(props) {
         },
     });
 
-    const handleDuration = (e) => {
-        e.preventDefault();
-        duration = parseInt(e.target.value)
-    }
+    // const handleDuration = (e) => {
+    //     e.preventDefault();
+    //     duration = parseInt(e.target.value)
+    // }
 
 
     const handleInputChange = (e) => {
-        console.log("Contents of lesson")
-        console.log(props.riderLesson)
-        // Getting the value and name of the input which triggered the change
-        //const { name, value } = e.target;
-    };
-
-    const handleRiderChange = (e) => {
-        idRider = e.target.value;
-    };
-
-    const handleInstructorChange = (e) => {
-        idInstructor = e.target.value;
-    };
-
-    const handleHorseChange = (e) => {
-        idHorse = e.target.value;
+        //grab the name and value from item changed
+        const { name, value } = e.target;
+        // if the item is rider, instructor or horse adjust the input to add _id:value instead of just value
+        if (name === "rider" || name === "instructor" || name === "horse") {
+            setFormData({ ...formData, [name]: { _id: value } })
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleFormSubmit = async () => {
-        const objRider = riders.find(rider => rider._id === idRider);
-        const objInstructor = instructors.find(instructor => instructor._id === idInstructor);
-        const objHorse = horses.find(horse => horse._id === idHorse);
+        //try to book a lesson with formdata state and other variables
         try {
-            const { loading, data } = await bookLesson({
+            const { loading } = await bookLesson({
                 variables: {
+                    ...formData,
                     lessonDate: bookedDate,
-                    startTime: startTime,
-                    duration: duration,
-                    timeSlot: timeSlot,
-                    rider: {
-                        _id: objRider._id,
-                    },
-                    instructor: {
-                        _id: objInstructor._id,
-                        firstName: objInstructor.firstName,
-                        lastName: objInstructor.lastName
-                    },
-                    horse: { _id: objHorse._id, name: objHorse.name }
-
+                    startTime,
+                    duration,
+                    timeSlot,
                 },
-            }
-            );
-            // window.location.reload()
-
-            // console.log("name", data.bookLesson.rider.firstName)
-            // console.log(data.bookLesson)
-            // return props.availability
-            // return props.checkIfavailable(data.bookLesson.timeSlot)
-            // return data.bookLesson
-            // console.log(data.bookLesson.timeSlot)
-            // return data && (console.log('data', data))
+            });
+            // If it's not loading close modal and then set formData back to empty
             if (!loading) {
-                // console.log("data", data)
-                // props.lessons.push(data.bookLesson)
                 props.setTrigger(false)
+                setFormData({
+                    lessonDate: "",
+                    startTime: "",
+                    duration: 1,
+                    timeSlot: "",
+                    rider: {},
+                    instructor: {},
+                    horse: {}
+                })
             }
-            // }
-            // props.riderLesson.rider.firstName = data.bookLesson.rider.firstName
-            // props.riderLesson.rider.lastName = data.bookLesson.rider.lastName
-            // props.setTimeForLesson('testing')
-            // console.log('riderlesson', props.riderLesson)
-            // props.setTimeSlot(objRider.firstName + " " + objRider.lastName)
-            // document.getElementById(props.timeSlot).text = "Testing..." + objRider.firstName + " " + objRider.lastName;
         } catch (err) {
             console.error(err);
         }
-        // props.setTrigger(false)
-        // props.setTimeSlot(props.timeSlot + objRider)
     }
     return (props.trigger) ? ((props.riderLesson) ? (
         <div className="popup">
@@ -149,7 +111,7 @@ function LessonForm(props) {
                             text={bookedDate}
                             // text={props.riderLesson.rider.lessonDate}
                             value={bookedDate}
-                            name="bookedDate"
+                            name="lessonDate"
                             onChange={handleInputChange}
                             type="text"
                             placeholder="Lesson Date"
@@ -158,7 +120,7 @@ function LessonForm(props) {
                     <div>
                         <label> Time:</label>&nbsp;
                         <input
-                            value={correctedTime || {}}
+                            value={convertHour(startTime) || {}}
                             name="startTime"
                             onChange={handleInputChange}
                             type="text"
@@ -167,10 +129,10 @@ function LessonForm(props) {
                     </div>
                     <div>
                         <label>Rider: </label>&nbsp;
-                        <select onChange={handleRiderChange}>
+                        <select name='rider' onChange={handleInputChange}>
                             <option defaultValue>{props.riderLesson.rider.firstName + " " + props.riderLesson.rider.lastName}</option>
                             {riders && riders.map((rider) =>
-                                (<option value={rider._id} key={rider._id}>{rider.firstName + " " + rider.lastName}</option>))}
+                                (<option value={rider._id} key={rider._id} >{rider.firstName + " " + rider.lastName}</option>))}
                         </select>
                         {/*  <select onChange={handleRiderChange}>
                             <option value="Rider"> -- Select a Rider -- </option>
@@ -180,20 +142,20 @@ function LessonForm(props) {
                     </div>
                     <div>
                         <label>Instructor: </label>&nbsp;
-                        <select onChange={handleInstructorChange}>
+                        <select name='instructor' onChange={handleInputChange}>
                             <option defaultValue>{props.riderLesson.instructor.firstName + " " + props.riderLesson.instructor.lastName} </option>
                             {instructors && instructors.map((instructor) =>
                                 (<option value={instructor._id} key={instructor._id}>{instructor.firstName + " " + instructor.lastName}</option>))}
                         </select></div><div>
                         <label>Horse: </label>&nbsp;
-                        <select onChange={handleHorseChange}>
+                        <select name='horse' onChange={handleInputChange}>
                             <option defaultValue>{props.riderLesson.horse.name}</option>
                             {horses && horses.map((horse) =>
-                                (<option value={horse._id} key={horse._id}>{horse.name}</option>))}
+                                (<option value={horse._id} key={horse._id} >{horse.name}</option>))}
                         </select>
                     </div>
                     <div> <label>Duration</label>&nbsp;
-                        <select onChange={handleDuration}>
+                        <select name="duration" onChange={handleInputChange}>
                             <option value="1">1 hour</option>
                             <option value="30">30 minutes</option>
                         </select>
@@ -202,7 +164,7 @@ function LessonForm(props) {
                         <button
                             type="button"
                             id="bookTime"
-                            onClick={handleFormSubmit}
+                            onClick={(e) => handleFormSubmit(e)}
                         >
                             Submit
                         </button>}
@@ -222,7 +184,7 @@ function LessonForm(props) {
                         <label> Date:</label>&nbsp;
                         <input
                             value={bookedDate}
-                            name="bookedDate"
+                            name="lessonDate"
                             onChange={handleInputChange}
                             type="text"
                             placeholder="Lesson Date"
@@ -250,34 +212,34 @@ function LessonForm(props) {
                     </div> */}
                     <div>
                         <label>Rider: </label>&nbsp;
-                        <select onChange={handleRiderChange}>
+                        <select name='rider' onChange={handleInputChange}>
                             <option value="Rider"> -- Select a Rider -- </option>
                             {riders && riders.map((rider) =>
-                                (<option value={rider._id} key={rider._id}>{rider.firstName + " " + rider.lastName}</option>))}
+                                (<option value={rider._id} key={rider._id} name='rider'>{rider.firstName + " " + rider.lastName}</option>))}
                         </select>
                     </div>
                     <div>
                         <label>Instructor: </label>&nbsp;
-                        <select onChange={handleInstructorChange}>
+                        <select name='instructor' onChange={handleInputChange}>
                             <option value="Instructor"> -- Select an Instructor -- </option>
                             {instructors && instructors.map((instructor) =>
-                                (<option value={instructor._id} key={instructor._id}>{instructor.firstName + " " + instructor.lastName}</option>))}
+                                (<option value={instructor._id} key={instructor._id} >{instructor.firstName + " " + instructor.lastName}</option>))}
                         </select></div><div>
                         <label>Horse: </label>&nbsp;
-                        <select onChange={handleHorseChange}>
+                        <select name='horse' onChange={handleInputChange}>
                             <option value="Horse"> -- Select a Horse -- </option>
                             {horses && horses.map((horse) =>
-                                (<option value={horse._id} key={horse._id}>{horse.name}</option>))}
+                                (<option value={horse._id} key={horse._id} >{horse.name}</option>))}
                         </select>
                     </div>
                     <div> <label>Duration</label>&nbsp;
-                        <select onChange={handleDuration}>
+                        <select name="duration" onChange={handleInputChange}>
                             <option value="1">1 hour</option>
                             <option value="30">30 minutes</option>
                         </select>
                     </div>
                     <button type="button" id="bookTime"
-                        onClick={() => handleFormSubmit()}>
+                        onClick={(e) => handleFormSubmit(e)}>
                         Submit
                     </button>
                 </form>

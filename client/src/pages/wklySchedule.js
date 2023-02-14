@@ -140,18 +140,13 @@ function WklySchedule() {
                         <LessonForm
                             trigger={anchorPopup}
                             timeSlot={timeSlot}
-                            setTimeSlot={setTimeSlot}
                             setTrigger={setShow}
                             message={message}
                             weekOf={weekOf}
                             lessonDay={lessonDay}
                             lessonHour={lessonHour}
                             riderLesson={riderLesson}
-                            setTimeForLesson={setTimeForLesson}
                             lessons={lessons}
-                        // checkIfavailable={checkIfavailable}
-                        // availability={availability}
-                        // scheduleAlesson={scheduleAlesson}
                         ></LessonForm>
                         <table>
                             <thead>
