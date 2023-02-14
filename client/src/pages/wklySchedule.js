@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import '../styles/timesheet.css'
 import LessonForm from "../components/lessonForm";
 // import TestLessonForm from "../components/testLessonForm";
@@ -22,8 +22,20 @@ function WklySchedule() {
     const [anchorPopup, setShow] = useState(false)
     const [message, setMessage] = useState('')
     const [riderLesson, setTimeForLesson] = useState(null);
-    const { data } = useQuery(QUERY_LESSONS);
-    const lessons = data?.lessons || [];
+    // const [lessonState, setLessonState] = useState(null)
+    const { loading, data } = useQuery(QUERY_LESSONS);
+    let lessons
+    if (!loading) {
+        lessons = data.lessons;
+        // setLessonState(data.lessons)
+        console.log("lessons", lessons)
+    }
+
+    // useEffect(() => {
+    //     // This effect uses the `value` variable,
+    //     // so it "depends on" `value`.
+    //     setLessonState(data.lessons)
+    // }, [lessonState, data])  // pass `value` as a dependency
     let availability = null;
     const weekdays = ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const timeOfAppointment = ["0900", "0930", "1000", "1030", "1100", "1130", "1200", "1230", "0100", "0130", "0200", "0230", "0300", "0330", "0400", "0430", "0500", "0530"]
@@ -31,6 +43,8 @@ function WklySchedule() {
     const scheduleAlesson = (event) => {
         //alert('you are here!!!!!!!!!!!!!!')
         event.preventDefault();
+
+
         var tmp = event.target.id;
         var day = tmp.substr(0, 2);
         var hour = tmp.substr(2);
@@ -134,6 +148,9 @@ function WklySchedule() {
                             lessonHour={lessonHour}
                             riderLesson={riderLesson}
                             setTimeForLesson={setTimeForLesson}
+                            lessons={lessons}
+                        // checkIfavailable={checkIfavailable}
+                        // availability={availability}
                         // scheduleAlesson={scheduleAlesson}
                         ></LessonForm>
                         <table>

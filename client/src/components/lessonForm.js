@@ -18,7 +18,7 @@ function LessonForm(props) {
     const weekOfDate = props.weekOf.format("MM/DD/YYYY");
     const lessonDay = props.lessonDay;
     const bookedDate = findDateOfLesson(lessonDay, weekOfDate).toString();
-
+    // const { lesson } = props;
     const timeSlot = props.timeSlot + bookedDate.replace(/\//g, "");
 
     const startTime = props.lessonHour;
@@ -44,7 +44,20 @@ function LessonForm(props) {
     // console.log(ts)
     //const lessonBooked = lessons.find(lesson => lesson.timeSlot === ts);
     //console.log(lessonBooked + " IN LESSON FORM")
-    const [bookLesson] = useMutation(BOOK_LESSON);
+    const [bookLesson] = useMutation(BOOK_LESSON, {
+        update(cache, { data: { bookLesson } }) {
+            try {
+                const { lessons } = cache.readQuery({ query: QUERY_LESSONS });
+
+                cache.writeQuery({
+                    query: QUERY_LESSONS,
+                    data: { lessons: [bookLesson, ...lessons] },
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        },
+    });
 
     const handleDuration = (e) => {
         e.preventDefault();
@@ -73,14 +86,10 @@ function LessonForm(props) {
 
     const handleFormSubmit = async () => {
         const objRider = riders.find(rider => rider._id === idRider);
-        // console.log(objRider)
-        //setRider(riders.find(rider => rider._id === idRider));
         const objInstructor = instructors.find(instructor => instructor._id === idInstructor);
-        // console.log(objInstructor)
         const objHorse = horses.find(horse => horse._id === idHorse);
-        // console.log(objHorse)
         try {
-            const { data } = await bookLesson({
+            const { loading, data } = await bookLesson({
                 variables: {
                     lessonDate: bookedDate,
                     startTime: startTime,
@@ -99,12 +108,20 @@ function LessonForm(props) {
                 },
             }
             );
-            window.location.reload()
+            // window.location.reload()
+
             // console.log("name", data.bookLesson.rider.firstName)
-            return data
+            // console.log(data.bookLesson)
+            // return props.availability
+            // return props.checkIfavailable(data.bookLesson.timeSlot)
+            // return data.bookLesson
+            // console.log(data.bookLesson.timeSlot)
             // return data && (console.log('data', data))
-            // if (!loading) {
-            //     console.log("data", data)
+            if (!loading) {
+                // console.log("data", data)
+                // props.lessons.push(data.bookLesson)
+                props.setTrigger(false)
+            }
             // }
             // props.riderLesson.rider.firstName = data.bookLesson.rider.firstName
             // props.riderLesson.rider.lastName = data.bookLesson.rider.lastName
@@ -115,7 +132,7 @@ function LessonForm(props) {
         } catch (err) {
             console.error(err);
         }
-        props.setTrigger(false)
+        // props.setTrigger(false)
         // props.setTimeSlot(props.timeSlot + objRider)
     }
     return (props.trigger) ? ((props.riderLesson) ? (
