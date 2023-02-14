@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import '../styles/timesheet.css'
 import LessonForm from "../components/lessonForm";
 import { useQuery } from '@apollo/client';
@@ -7,6 +7,7 @@ import { QUERY_LESSONS } from "../utils/queries";
 import { useState } from 'react';
 import convertDay from "../utils/convertDay";
 import convertHour from "../utils/convertHour";
+import { weekdays, timeOfAppointment } from "../utils/helpers"
 
 const moment = require('moment');
 
@@ -36,8 +37,6 @@ function WklySchedule() {
     //     setLessonState(data.lessons)
     // }, [lessonState, data])  // pass `value` as a dependency
     let availability = null;
-    const weekdays = ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const timeOfAppointment = ["0900", "0930", "1000", "1030", "1100", "1130", "1200", "1230", "0100", "0130", "0200", "0230", "0300", "0330", "0400", "0430", "0500", "0530"]
 
     const scheduleAlesson = (event) => {
         //alert('you are here!!!!!!!!!!!!!!')
